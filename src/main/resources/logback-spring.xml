@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+    -
+    <appender name="logstash" class="net.logstash.logback.appender.LogstashUdpSocketAppender">
+        <host>localhost</host>
+        <port>5001</port>
+        <layout class="net.logstash.logback.layout.LogstashLayout"/>
+    </appender>
+    <appender name="logstashTcp" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>localhost:5002</destination>
+        <writeBufferSize>42384</writeBufferSize>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeContext>false</includeContext>
+        </encoder>
+    </appender>
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="console"/>
+    </root>
+    <logger name="aurora.mag.batch.log" level="INFO" additivity="false">
+        <appender-ref ref="logstashTcp"/>
+    </logger>
+</configuration>

@@ -1,0 +1,42 @@
+server:
+  port: ${APP_PORT:8094}
+  servlet:
+    context-path: /aurora
+import:
+  aurora:
+    import_data_from: http
+    import_data_by_date: 2021-10-12
+    import_data_from_timestamp: 20211029204818
+    local_data_dir: c:/Projects/aurora/maggraphs/
+    http_data_url: https://www2.irf.se/maggraphs/rt.txt
+    #url: https://www2.irf.se/maggraphs/rt.txt
+    temporary_directory: c:/Projects/aurora/maggraphs/temp/
+    #scheduler:
+    cron_rt_load: 1 */5 * * * ?
+    cron_clear_temporary_directory: ${SCHEDULER_CRON_CLEAR_TMP_DIR:}
+  chunk-size: 100
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  batch:
+    schema: classpath:batch/schema-postgresql.sql
+    initialize-schema: always
+    job:
+      enabled: false
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/interstorage?serverTimezone=Europe/Moscow}
+    username: ${DB_USERNAME:user}
+    password: ${DB_PASSWORD:password}
+    testOnBorrow: true
+    validationQuery: SELECT 1
+    hikari:
+      maximumPoolSize: 50
+      idleTimeout: 600000
+      connectionTimeout: 100000
+      validationTimeout: 5000
+      maxLifetime: 1800000
+  jackson:
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
