@@ -79,7 +79,10 @@ public abstract class ResourceManager {
                 .orElseThrow(() -> new ResourceNotFoundException("Can't find files at path = "));
         return getResourceByFullName(firstResourceName);
     }
-
+    private List<Resource> getResourcesByNameFromNamesList(List<String> resourceNames) {
+        return  resourceNames.stream()
+                .map(this::getResourceByFullName).collect(Collectors.toList());
+    }
 
     public String getMagneticFileLocation(Date executionJobDate) {
         return RT_FILENAME_PREFIX + SEPARATOR + dateFormatDash.format(executionJobDate);
@@ -95,7 +98,10 @@ public abstract class ResourceManager {
         List<String> resourceNames = getResourceNamesByPrefixForTodayOrYesterday(RT_FILENAME_PREFIX + SEPARATOR, dateFormatDash);
         return getFirstResourceByNameFromNamesList(resourceNames);
     }
-
+    public List<Resource> getMagneticFiles() {
+        List<String> resourceNames = getResourceNamesByPrefixForTodayOrYesterday(RT_FILENAME_PREFIX + SEPARATOR, dateFormatDash);
+        return getResourcesByNameFromNamesList(resourceNames);
+    }
 
     private List<String> getResourceNamesByPrefixForTodayOrYesterday(String prefix, DateFormat dateFormat) {
         List<String> resourceNames = getResourceNamesByPrefix(prefix + getDataImportDateOrToday(dateFormat));

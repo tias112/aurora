@@ -25,21 +25,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class HttpRemoteResourceManager extends ResourceManager {
-    //SP
-    private final String magUrl;
 
+    private final String magUrl;
+    private int retryCount = 1;
 
     private final TemporaryFileStorageManager tempFileStorageManager;
     private final ConcurrentHashMap<String, List<String>> cacheFileNamesForUrl = new ConcurrentHashMap<>();
 
     public HttpRemoteResourceManager(ImportProperties importProperties, TemporaryFileStorageManager temporaryFileStorageManager) throws ParseException {
         super(importProperties);
-
+        this.retryCount = importProperties.getRetryCount();
         tempFileStorageManager = temporaryFileStorageManager;
 
         magUrl = importProperties.getHttpDataUrl();
         log.debug("spUrl = {}, atgUrl = {}", magUrl);
-//TODO: try initialize lastTimestamp from temp directly last file
+
     }
 
     @Override
@@ -73,49 +73,26 @@ public class HttpRemoteResourceManager extends ResourceManager {
 
     private Resource getResourceByHttp(String urlPath, String fileName) {
 
-        //    if (tempFileStorageManager.isFileNotExists(fileName)) {
-        int count = 0;
+      int count = 0;
         while (true) {
             try {
-                downloadFileByHttpToTemp(urlPath, fileName);
-                //setLastTimestamp(getLastTimestamp(fileName));
-                //log.info("saved last timestamp {}", getLastTimestamp());
-                break;
+                if (downloadFileByHttpToTemp(urlPath, fileName)) {
+                    break;
+                } else {
+                    log.info("HTTP 200 and file is not ready. try again");
+                }
             } catch (ResourceRetrievalException e) {
                 log.error("error accessing magnetic", e);
-                if (++count > 3) {
+                if (++count > retryCount) {
                     break;
                 }
             }
         }
-      /*  } else {
-            log.debug("File: {} exists in temp-directory. We will not download the file", fileName);
-        }
-*/
+
         return tempFileStorageManager.getResource(fileName);
     }
 
-    //TODO: move to end of batch
-    private LocalDateTime getLastTimestamp(String fileName) {
-        String targetFilePath = tempFileStorageManager.getDataTempDirectory() + fileName;
-        try {
-            LineIterator it = FileUtils.lineIterator(new File(targetFilePath), StandardCharsets.UTF_8.name());
-            String lastRecord = "";
-            while (it.hasNext()) {
-                String[] parts = it.next().split(" {2}");
-                if (parts[0].length() > 10) {
-                    lastRecord = parts[0];
-                }
-            }
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-            //String formattedDate = now.format(formatter);
-            return LocalDateTime.parse(lastRecord, formatter);
-        } catch (IOException e) {
-            throw new ItemStreamException(e);
-        }
-    }
-
-    private void downloadFileByHttpToTemp(String uri, String fileName) {
+    private boolean downloadFileByHttpToTemp(String uri, String fileName) {
         try {
             URL url = new URL(uri);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -128,11 +105,13 @@ public class HttpRemoteResourceManager extends ResourceManager {
             urlConnection.connect();
             log.info("Response Code: " + urlConnection.getResponseCode());
             log.info("Content-Length: " + urlConnection.getContentLengthLong());
+            if (getLastTimestamp() != null && urlConnection.getResponseCode() == 200 && urlConnection.getContentLengthLong() == 0L) {
+                return false; // delta is not available
+            }
             InputStream inputStream = urlConnection.getInputStream();
             String targetFilePath = tempFileStorageManager.getDataTempDirectory() + fileName;
             saveInputStreamToTempFile(inputStream, targetFilePath);
-
-
+            return true;
         } catch (Exception e) {
             throw new ResourceRetrievalException("Error getting file from: " + uri, e);
         }

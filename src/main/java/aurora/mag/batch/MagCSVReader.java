@@ -4,8 +4,10 @@ import aurora.mag.resourcemanager.ResourceManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
-import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.item.file.ResourceAwareItemReaderItemStream;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 
 import java.io.File;
@@ -17,17 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class MagCSVReader implements ItemReader<MagRecord> {
+public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord> {
     List<MagRecord> magRec = new ArrayList<>();
+
     ResourceManager resourceManager;
+    private Resource resource = null;
     private int count;
 
-    public MagCSVReader(Resource regions, ResourceManager resourceManager) throws IOException {
+    public MagCSVReader( ResourceManager resourceManager) throws IOException {
         this.resourceManager = resourceManager;
-        parseRegionsCSV(regions.getFile());
     }
 
-    private void parseRegionsCSV(File fileRegions) {
+    private void parseMagCSV(File fileRegions) {
 
         log.debug("parseRegionsCSV from {}", fileRegions.getAbsolutePath());
 
@@ -82,5 +85,35 @@ public class MagCSVReader implements ItemReader<MagRecord> {
             count++;
         }
         return magRecord;
+    }
+
+    @Override
+    public void setResource(Resource resource) {
+        this.resource = resource;
+    }
+
+    @Override
+    public void open(ExecutionContext executionContext) throws ItemStreamException {
+        if (resource.exists()) {
+            try {
+                magRec.clear();
+                parseMagCSV(resource.getFile());
+            }catch (Exception e) {
+                log.error("error reading resource", e);
+            }
+        } else {
+            log.warn("resource doesn't exist");
+        }
+    }
+
+    @Override
+    public void update(ExecutionContext executionContext) throws ItemStreamException {
+
+    }
+
+    @Override
+    public void close() throws ItemStreamException {
+        this.resource = null;
+        magRec.clear();
     }
 }

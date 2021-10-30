@@ -22,6 +22,8 @@ public class ImportProperties {
     public String httpDataUrl;
     @Value("${import.chunk-size}")
     private Integer chunkSize;
+    @Value("${import.retry-count}")
+    private Integer retryCount;
     @Value("${import.aurora.cron_rt_load}")
     private String cronRtLoad;
     @Value("${import.aurora.cron_clear_temporary_directory}")
