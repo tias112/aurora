@@ -27,6 +27,7 @@ public class MagItemWriter implements ItemWriter<MagRecord> {
                     + " " + regionsDTO.getYcomponent()
                     + " " + regionsDTO.getZcomponent()
                     + " " + (Float.isInfinite(regionsDTO.getDeriviativeX()) ? 1000.0 : Math.abs(regionsDTO.getDeriviativeX()))
+                    + " " + "1"
             );
         }
 

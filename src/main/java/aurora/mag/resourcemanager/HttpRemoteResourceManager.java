@@ -80,6 +80,9 @@ public class HttpRemoteResourceManager extends ResourceManager {
                     break;
                 } else {
                     log.info("HTTP 200 and file is not ready. try again");
+                    if (++count > retryCount) {
+                        break;
+                    }
                 }
             } catch (ResourceRetrievalException e) {
                 log.error("error accessing magnetic", e);
@@ -117,9 +120,7 @@ public class HttpRemoteResourceManager extends ResourceManager {
         }
     }
 
-    private LocalDateTime getCurrentTimeInUTC() {
-        return LocalDateTime.now().minusHours(3);
-    }
+
 
     private String calculateBytes(LocalDateTime prevTimestamp, LocalDateTime currentTimestamp) {
         long numOfSeconds = Duration.between(prevTimestamp, currentTimestamp).getSeconds();

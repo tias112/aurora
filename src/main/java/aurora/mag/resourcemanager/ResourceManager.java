@@ -170,6 +170,10 @@ public abstract class ResourceManager {
         return lastTimestamp;
     }
 
+    public LocalDateTime getCurrentTimeInUTC() {
+        return LocalDateTime.now().minusHours(3);
+    }
+
     public void setLastTimestamp(LocalDateTime lastTimestamp) {
         this.lastTimestamp = lastTimestamp;
     }

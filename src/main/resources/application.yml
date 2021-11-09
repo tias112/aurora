@@ -5,17 +5,17 @@ server:
 import:
   aurora:
     import_data_from: http
-    import_data_by_date: 2021-10-27
-    import_data_from_timestamp:
-    local_data_dir: c:/Project/aurora/maggraphs/temp/
+    import_data_by_date: 2021-11-05
+    import_data_from_timestamp: 20211108220215
+    local_data_dir: c:/Project/aurora/maggraphs
     http_data_url: https://www2.irf.se/maggraphs/rt.txt
     #url: https://www2.irf.se/maggraphs/rt.txt
-    temporary_directory: c:/Projects/aurora/maggraphs/temp/
+    temporary_directory: c:/Project/aurora/maggraphs/temp/
     #cron_rt_load:
-    cron_rt_load: 1 */5 * * * ?
+    cron_rt_load: 1 */2 * * * ?
     cron_clear_temporary_directory: ${SCHEDULER_CRON_CLEAR_TMP_DIR:}
   chunk-size: 100
-  retry-count: 2
+  retry-count: 5
 spring:
   main:
     allow-bean-definition-overriding: true

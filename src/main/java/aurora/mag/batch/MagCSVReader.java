@@ -13,10 +13,10 @@ import org.springframework.core.io.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord> {
@@ -25,7 +25,21 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
     ResourceManager resourceManager;
     private Resource resource = null;
     private int count;
+    public static Queue<Float> pageQueue = new LinkedList<Float>(){
+        private static final long serialVersionUID = -6707803882461262867L;
 
+        public boolean add(Float object) {
+            boolean result;
+            if(this.size() < 15*60)
+                result = super.add(object);
+            else
+            {
+                super.removeFirst();
+                result = super.add(object);
+            }
+            return result;
+        }
+    };
     public MagCSVReader( ResourceManager resourceManager) throws IOException {
         this.resourceManager = resourceManager;
     }
@@ -43,14 +57,19 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
                         String[] components = parts[1].split(" ");
                         MagRecord magRecord = new MagRecord();
                         magRecord.setTimestamp(parts[0]);
+
                         magRecord.setXcomponent(Float.parseFloat(components[0].trim()));
                         magRecord.setYcomponent(Float.parseFloat(components[1].trim()));
-                        magRecord.setZcomponent(Float.parseFloat(components[2].trim()));
+                        if (components.length>2) {
+                            magRecord.setZcomponent(Float.parseFloat(components[2].trim()));
+                        }
                         if (isDateAfterLastTimestamp(magRecord.getTimestamp())) {
+                            pageQueue.add(magRecord.getXcomponent());
                             magRec.add(magRecord);
                         }
                     }
                 }
+               log.info("delay : {}", Duration.between(resourceManager.getLastTimestamp(), resourceManager.getCurrentTimeInUTC()).getSeconds());
             } catch (IOException e) {
                 throw new ItemStreamException(e);
             }

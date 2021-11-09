@@ -9,4 +9,6 @@
 7. setup anomaly job.
 
 TODO:
+- JobsHistoryManager
 - try initialize lastTimestamp where job stopped (from last file)
+- emote: Support for password authentication was removed on August 13, 2021. Please use a personal access token instead. remote: Please see https://github.blog/2020-12-15-token-authentication-requirements-for-git-operations/ for more information. Authentication failed for 'https://github.com/tias112/aurora/
