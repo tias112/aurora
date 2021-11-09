@@ -25,21 +25,7 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
     ResourceManager resourceManager;
     private Resource resource = null;
     private int count;
-    public static Queue<Float> pageQueue = new LinkedList<Float>(){
-        private static final long serialVersionUID = -6707803882461262867L;
 
-        public boolean add(Float object) {
-            boolean result;
-            if(this.size() < 15*60)
-                result = super.add(object);
-            else
-            {
-                super.removeFirst();
-                result = super.add(object);
-            }
-            return result;
-        }
-    };
     public MagCSVReader( ResourceManager resourceManager) throws IOException {
         this.resourceManager = resourceManager;
     }
@@ -64,7 +50,6 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
                             magRecord.setZcomponent(Float.parseFloat(components[2].trim()));
                         }
                         if (isDateAfterLastTimestamp(magRecord.getTimestamp())) {
-                            pageQueue.add(magRecord.getXcomponent());
                             magRec.add(magRecord);
                         }
                     }
