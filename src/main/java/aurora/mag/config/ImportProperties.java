@@ -14,6 +14,8 @@ public class ImportProperties {
     public String importDataFrom;
     @Value("${import.aurora.import_data_from_timestamp}")
     public String importDataFromTimestamp;
+    @Value("${import.aurora.simulate_as_today}")
+    public Boolean simulateAsToday;
     @Value("${import.aurora.import_data_by_date}")
     public String importDataByDate;
     @Value("${import.aurora.local_data_dir}")

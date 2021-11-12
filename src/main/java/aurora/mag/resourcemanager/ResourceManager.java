@@ -43,6 +43,7 @@ public abstract class ResourceManager {
     public final DateFormat dateFormatUnderscore = new SimpleDateFormat(DATE_PATTERN_UNDERSCORE);
     private LocalDateTime lastTimestamp = null;
     private Date dataImportDate;
+    private boolean simulateAsToday;
 
     public ResourceManager(ImportProperties properties) throws ParseException {
 
@@ -52,7 +53,7 @@ public abstract class ResourceManager {
         if (properties.getImportDataFromTimestamp() != null && !properties.getImportDataFromTimestamp().isEmpty()) {
             lastTimestamp = LocalDateTime.parse(properties.getImportDataFromTimestamp(), formatter);
         }
-
+        simulateAsToday=properties.simulateAsToday;
         log.info("timestamp = {}", lastTimestamp);
         log.debug("dataImportDate = {}", dataImportDate);
     }
@@ -93,6 +94,9 @@ public abstract class ResourceManager {
         return getDataImportDateOrYesterday(dateFormatDash);
     }
 
+    public boolean simulateAsToday() {
+        return simulateAsToday;
+    }
 
     public Resource getMagneticFile() {
         List<String> resourceNames = getResourceNamesByPrefixForTodayOrYesterday(RT_FILENAME_PREFIX + SEPARATOR, dateFormatDash);

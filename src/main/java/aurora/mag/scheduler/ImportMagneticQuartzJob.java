@@ -1,5 +1,6 @@
 package aurora.mag.scheduler;
 
+import aurora.mag.resourcemanager.AnotherJobRunningException;
 import aurora.mag.resourcemanager.TemporaryFileStorageManager;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
@@ -18,7 +19,8 @@ public class ImportMagneticQuartzJob implements Job {
 
     @Autowired
     JobLauncher jobLauncher;
-
+    @Autowired
+    JobsHistoryManager jobsHistoryManager;
     @Autowired
     org.springframework.batch.core.Job importMagneticJob;
 
@@ -30,6 +32,7 @@ public class ImportMagneticQuartzJob implements Job {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addLong("jobTimestamp", System.currentTimeMillis())
                     .toJobParameters();
+            checkRunningJobs();
             JobExecution jobExecution = jobLauncher.run(importMagneticJob, jobParameters);
 
         } catch (Exception e) {
@@ -39,4 +42,11 @@ public class ImportMagneticQuartzJob implements Job {
             log.info("<< ImportMagneticQuartzJob end: {}, duration: {}", end, Duration.between(start, end));
         }
     }
+
+    private void checkRunningJobs() {
+        if (jobsHistoryManager.existRunningJob()) {
+            throw new AnotherJobRunningException("Another job is running. ");
+        }
+    }
+
 }

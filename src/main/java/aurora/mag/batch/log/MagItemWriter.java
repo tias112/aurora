@@ -48,7 +48,7 @@ public class MagItemWriter implements ItemWriter<MagRecord> {
 
         Float min = pageQueue.stream().min(Comparator.comparing(Float::valueOf)).orElse(0.0f);
         Float max = pageQueue.stream().max(Comparator.comparing(Float::valueOf)).orElse(0.0f);
-        String q = decideQ(min, max);
+        String q = decideQ(min, max); //TODO: by Y and Z
         for (MagRecord magRecord : list) {
             String timestamp = magRecord.getTimestamp();
             magRecord.setDeriviativeX((float) derivative.value(list.indexOf(magRecord)));

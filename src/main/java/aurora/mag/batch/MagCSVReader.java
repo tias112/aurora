@@ -33,7 +33,6 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
     private void parseMagCSV(File fileRegions) {
 
         log.debug("parseRegionsCSV from {}", fileRegions.getAbsolutePath());
-
         if (fileRegions.exists()) {
             try {
                 LineIterator it = FileUtils.lineIterator(fileRegions, StandardCharsets.UTF_8.name());
@@ -42,14 +41,14 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
                     if (parts.length > 1) {
                         String[] components = parts[1].split(" ");
                         MagRecord magRecord = new MagRecord();
-                        magRecord.setTimestamp(parts[0]);
+                        magRecord.setTimestamp(getTimestampStr(parts[0]));
 
                         magRecord.setXcomponent(Float.parseFloat(components[0].trim()));
                         magRecord.setYcomponent(Float.parseFloat(components[1].trim()));
                         if (components.length>2) {
                             magRecord.setZcomponent(Float.parseFloat(components[2].trim()));
                         }
-                        if (isDateAfterLastTimestamp(magRecord.getTimestamp())) {
+                        if (isDateBeforeToday(magRecord.getTimestamp()) && isDateAfterLastTimestamp(magRecord.getTimestamp())) {
                             magRec.add(magRecord);
                         }
                     }
@@ -64,6 +63,26 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
         log.info("read {} new records", magRec.size());
     }
 
+    private String getTimestampStr(String timestamp) {
+        if (resourceManager.simulateAsToday() && timestamp.length()>11) {
+            LocalDateTime local = resourceManager.getCurrentTimeInUTC();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            formatter.format(local).substring(0,8);
+            return formatter.format(local).substring(0,8) + timestamp.substring(8);
+        }
+        return timestamp;
+    }
+
+    private boolean isDateBeforeToday(String timestamp) {
+        //skip partial line
+        if (timestamp.length() < 14 && !resourceManager.simulateAsToday()) {
+            return false;
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        LocalDateTime date = LocalDateTime.parse(timestamp, formatter);
+
+        return date.isBefore(resourceManager.getCurrentTimeInUTC());
+    }
     private boolean isDateAfterLastTimestamp(String timestamp) {
         //skip partial line
         if (timestamp.length() < 14) {
