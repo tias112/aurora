@@ -48,7 +48,7 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
                         if (components.length>2) {
                             magRecord.setZcomponent(Float.parseFloat(components[2].trim()));
                         }
-                        if (isDateBeforeToday(magRecord.getTimestamp()) && isDateAfterLastTimestamp(magRecord.getTimestamp())) {
+                        if ( isDateBeforeToday(magRecord.getTimestamp()) && isDateAfterLastTimestamp(magRecord.getTimestamp())) {
                             magRec.add(magRecord);
                         }
                     }
@@ -75,14 +75,22 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
 
     private boolean isDateBeforeToday(String timestamp) {
         //skip partial line
-        if (timestamp.length() < 14 && !resourceManager.simulateAsToday()) {
+        if (timestamp==null) {
+            return true;
+        }
+         if (timestamp.length() < 14 ) {
             return false;
         }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        LocalDateTime date = LocalDateTime.parse(timestamp, formatter);
+        if (resourceManager.simulateAsToday()) {
 
-        return date.isBefore(resourceManager.getCurrentTimeInUTC());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            LocalDateTime date = LocalDateTime.parse(timestamp, formatter);
+
+            return date.isBefore(resourceManager.getCurrentTimeInUTC());
+        }
+        return true;
     }
+    
     private boolean isDateAfterLastTimestamp(String timestamp) {
         //skip partial line
         if (timestamp.length() < 14) {
@@ -120,6 +128,7 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
         if (resource.exists()) {
             try {
                 magRec.clear();
+                count=0;
                 parseMagCSV(resource.getFile());
             }catch (Exception e) {
                 log.error("error reading resource", e);

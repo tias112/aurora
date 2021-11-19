@@ -8,10 +8,7 @@ import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionNewtonForm;
 import org.springframework.batch.item.ItemWriter;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -20,42 +17,61 @@ public class MagItemWriter implements ItemWriter<MagRecord> {
     DividedDifferenceInterpolator divider = new DividedDifferenceInterpolator();
     PolynomialFunction derivative;
     final static public int Q_PAGE_SIZE = 15 * 60;
-    public static Queue<Float> pageQueue = new LinkedList<>() {
-        private static final long serialVersionUID = -6707803882461262867L;
+    public static Map<String, Queue<Float>> pageQueues = new HashMap<>() {{
+        this.put("X", new PagedMetric());
+        this.put("Y", new PagedMetric());
+        this.put("Z", new PagedMetric());
+    }};
 
-        public boolean add(Float object) {
-            boolean result;
-            if (this.size() < Q_PAGE_SIZE)
-                result = super.add(object);
-            else {
-                super.removeFirst();
-                result = super.add(object);
-            }
-            return result;
-        }
-    };
 
     public static boolean isBetween(float x, float lower, float upper) {
         return lower <= x && x <= upper;
     }
 
-    @Override
-    public void write(List<? extends MagRecord> list) throws Exception {
-        calculateDeriviative(list.stream().map(MagRecord::getXcomponent).map(Float::doubleValue).collect(Collectors.toList()));
-        for (MagRecord magRecord : list) {
-            pageQueue.add(magRecord.getXcomponent());
-        }
+    private Queue<Float> getComponentXPage() {
+        return pageQueues.get("X");
+    }
 
+    private Queue<Float> getComponentYPage() {
+        return pageQueues.get("Y");
+    }
+
+    private Queue<Float> getComponentZPage() {
+        return pageQueues.get("Z");
+    }
+
+    private Float getMinMaxDelta(Queue<Float> pageQueue) {
         Float min = pageQueue.stream().min(Comparator.comparing(Float::valueOf)).orElse(0.0f);
         Float max = pageQueue.stream().max(Comparator.comparing(Float::valueOf)).orElse(0.0f);
-        String q = decideQ(min, max); //TODO: by Y and Z
+        return max - min;
+    }
+
+    @Override
+    public void write(List<? extends MagRecord> list) throws Exception {
+        // calculateDeriviative(list.stream().map(MagRecord::getXcomponent).map(Float::doubleValue).collect(Collectors.toList()));
+        for (MagRecord magRecord : list) {
+            if (magRecord.getXcomponent() != null) {
+                getComponentXPage().add(magRecord.getXcomponent());
+            }
+            if (magRecord.getYcomponent() != null) {
+                getComponentYPage().add(magRecord.getYcomponent());
+            }
+            if (magRecord.getZcomponent() != null) {
+                getComponentZPage().add(magRecord.getZcomponent());
+            }
+        }
+
+
+        String q = decideQ(pageQueues.values().stream()
+                .map(this::getMinMaxDelta)
+                .max(Float::compareTo).orElse(0.0f));
         for (MagRecord magRecord : list) {
             String timestamp = magRecord.getTimestamp();
-            magRecord.setDeriviativeX((float) derivative.value(list.indexOf(magRecord)));
+            // magRecord.setDeriviativeX((float) derivative.value(list.indexOf(magRecord)));
             log.info(timestamp + " " + magRecord.getXcomponent()
                     + " " + magRecord.getYcomponent()
                     + " " + magRecord.getZcomponent()
-                    + " " + (Float.isInfinite(magRecord.getDeriviativeX()) ? 1000.0 : Math.abs(magRecord.getDeriviativeX()))
+                    + " " + getMinMaxDelta(getComponentXPage())//(Float.isInfinite(magRecord.getDeriviativeX()) ? 1000.0 : Math.abs(magRecord.getDeriviativeX()))
                     + " " + q
             );
         }
@@ -63,8 +79,8 @@ public class MagItemWriter implements ItemWriter<MagRecord> {
         Thread.sleep(300);
     }
 
-    private String decideQ(Float min, Float max) {
-        float num = max - min;
+    private String decideQ(Float num) {
+
         if (isBetween(num, 0, 15)) {
             return "0";
         } else if (isBetween(num, 15, 30)) {
@@ -99,4 +115,22 @@ public class MagItemWriter implements ItemWriter<MagRecord> {
                 (PolynomialFunction) new PolynomialFunction(coefficients).derivative();
 
     }
+
+    private static class PagedMetric extends LinkedList<Float> {
+
+        private static final long serialVersionUID = -6707803882461262867L;
+
+        @Override
+        public boolean add(Float object) {
+            boolean result;
+            if (this.size() < Q_PAGE_SIZE)
+                result = super.add(object);
+            else {
+                super.removeFirst();
+                result = super.add(object);
+            }
+            return result;
+        }
+    }
+
 }
