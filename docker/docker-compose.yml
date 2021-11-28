@@ -42,6 +42,7 @@ services:
     command: bash -c "bin/logstash-plugin install logstash-input-tcp && bin/logstash-plugin install logstash-filter-grok && logstash -f /etc/logstash/conf.d/logstash.conf"
     volumes:
       - ./logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf:ro
+      - ./logstash/ca.pem:/usr/share/logstash/config/ca.pem:ro
     depends_on:
       - elasticsearch
     links:
