@@ -39,7 +39,7 @@ services:
       - 5002:5002
     networks:
       - docker-elk
-    command: bash -c "bin/logstash-plugin install logstash-input-tcp && bin/logstash-plugin install logstash-input-http && bin/logstash-plugin install logstash-filter-grok && logstash -f /etc/logstash/conf.d/logstash.conf"
+    command: bash -c "bin/logstash-plugin install logstash-input-tcp && bin/logstash-plugin install logstash-filter-grok && logstash -f /etc/logstash/conf.d/logstash.conf"
     volumes:
       - ./logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf:ro
     depends_on:
