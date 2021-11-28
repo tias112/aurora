@@ -5,13 +5,13 @@ server:
 import:
   aurora:
     import_data_from: http
-    import_data_by_date: 2021-11-09
-    import_data_from_timestamp:
+    import_data_by_date: 2021-11-0
+    import_data_from_timestamp: 20211123074809
     simulate_as_today: false
-    local_data_dir: c:/Project/aurora/maggraphs/temp/
+    local_data_dir: c:/Projects/aurora/maggraphs/
     http_data_url: https://www2.irf.se/maggraphs/rt.txt
     #url: https://www2.irf.se/maggraphs/rt.txt
-    temporary_directory: c:/Project/aurora/maggraphs/temp/
+    temporary_directory: c:/Projects/aurora/maggraphs/temp/
     #cron_rt_load:
     cron_rt_load: 1 */5 * * * ?
     cron_clear_temporary_directory: ${SCHEDULER_CRON_CLEAR_TMP_DIR:}
