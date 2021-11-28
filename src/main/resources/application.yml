@@ -5,10 +5,10 @@ server:
 import:
   aurora:
     import_data_from: http
-    import_data_by_date: 2021-11-0
-    import_data_from_timestamp: 20211123074809
+    import_data_by_date: 2021-11-26
+    import_data_from_timestamp:
     simulate_as_today: false
-    local_data_dir: c:/Projects/aurora/maggraphs/
+    local_data_dir: c:/Projects/aurora/maggraphs/temp
     http_data_url: https://www2.irf.se/maggraphs/rt.txt
     #url: https://www2.irf.se/maggraphs/rt.txt
     temporary_directory: c:/Projects/aurora/maggraphs/temp/
