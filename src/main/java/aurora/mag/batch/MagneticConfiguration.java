@@ -78,7 +78,7 @@ public class MagneticConfiguration {
         return jobBuilderFactory.get("importMagneticJob")
                 .incrementer(new RunIdIncrementer())
                 .start(readMagnetic)
-                .start(noopStep)
+                //.start(noopStep)
                 .build();
     }
 

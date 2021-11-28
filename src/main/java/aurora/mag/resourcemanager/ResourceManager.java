@@ -43,17 +43,18 @@ public abstract class ResourceManager {
     public final DateFormat dateFormatUnderscore = new SimpleDateFormat(DATE_PATTERN_UNDERSCORE);
     private LocalDateTime lastTimestamp = null;
     private Date dataImportDate;
+    private String dataImportDatePrefx;
     private boolean simulateAsToday;
 
     public ResourceManager(ImportProperties properties) throws ParseException {
-
-        dataImportDate = parseDateIfExist(properties.importDataByDate, dateFormatDash);
+        dataImportDatePrefx = properties.importDataByDate
+        //dataImportDate = parseDateIfExist(properties.importDataByDate, dateFormatDash);
         ;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         if (properties.getImportDataFromTimestamp() != null && !properties.getImportDataFromTimestamp().isEmpty()) {
             lastTimestamp = LocalDateTime.parse(properties.getImportDataFromTimestamp(), formatter);
         }
-        simulateAsToday=properties.simulateAsToday;
+        simulateAsToday = properties.simulateAsToday;
         log.info("timestamp = {}", lastTimestamp);
         log.debug("dataImportDate = {}", dataImportDate);
     }
@@ -129,12 +130,18 @@ public abstract class ResourceManager {
     }
 
     public String getDataImportDateOrToday(DateFormat dateFormat) {
-        return getDataImportDateOrDefault(dateFormat, new Date());
+        //return getDataImportDateOrDefault(dateFormat, new Date());
+        return getDataImportDateOrDefault(dateFormat.format(new Date()));
     }
 
     private String getDataImportDateOrDefault(DateFormat dateFormat, Date defaultValue) {
         Date dateForImport = (dataImportDate != null) ? dataImportDate : defaultValue;
         return dateFormat.format(dateForImport);
+    }
+
+    private String getDataImportDateOrDefault(String defaultValue) {
+        return (dataImportDatePrefx != null) ? dataImportDatePrefx : defaultValue;
+
     }
 
     private Date yesterday() {
@@ -182,4 +189,7 @@ public abstract class ResourceManager {
         this.lastTimestamp = lastTimestamp;
     }
 
+    public boolean isLocal() {
+        return this instanceof LocalResourceManager;
+    }
 }

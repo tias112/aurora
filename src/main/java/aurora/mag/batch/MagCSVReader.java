@@ -101,7 +101,7 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
         if (resourceManager.getLastTimestamp() == null) {
             resourceManager.setLastTimestamp(date);
             return true;
-        } else if (date.isAfter(resourceManager.getLastTimestamp())) {
+        } else if (resourceManager.isLocal() || date.isAfter(resourceManager.getLastTimestamp())) {
             resourceManager.setLastTimestamp(date);
             return true;
         }
