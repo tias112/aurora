@@ -67,7 +67,6 @@ public class MagCSVReader implements ResourceAwareItemReaderItemStream<MagRecord
         if (resourceManager.simulateAsToday() && timestamp.length()>11) {
             LocalDateTime local = resourceManager.getCurrentTimeInUTC();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-            formatter.format(local).substring(0,8);
             return formatter.format(local).substring(0,8) + timestamp.substring(8);
         }
         return timestamp;

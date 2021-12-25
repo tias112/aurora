@@ -5,7 +5,7 @@ server:
 import:
   aurora:
     import_data_from: http
-    import_data_by_date: 2021-11-26
+    import_data_by_date: 2021-12-21
     import_data_from_timestamp:
     simulate_as_today: false
     local_data_dir: c:/Projects/aurora/maggraphs/temp
