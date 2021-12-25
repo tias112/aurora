@@ -9,11 +9,11 @@ K index realtime calculation based on kiruna magnetogram data from www2.irf.se
    - Check install tooling is up to date `python -m pip install -U pip wheel setuptools`
    - Install the requirements `pip install -r requirements.txt`
 2. start job:
-   python start_observer.py <mode> <bot_token> <bot_chat_id>
-   mode: ml/formula bot_token: token of telegram bot bot_chat_id: chat_id
+   python start_observer.py <mode> <freq_sec> <bot_token> <bot_chat_id>
+   mode: ml/formula/both freq_sec: frequency of reporting (optimal: 60)
+   bot_token: token of telegram bot bot_chat_id: chat_id
 
 TODO:
 
-- make arguments to start.
-- make as docker container start (https://github.com/alexander-akhmetov/python-telegram)
+- make as docker container start 
 

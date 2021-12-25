@@ -5,14 +5,15 @@ from client.telegram_bot import telegram_bot_sendtext
 import time
 import sys
 
-if len(sys.argv)!=4:
-    print("Usage: python start_observer.py <mode> <bot_token> <bot_chat_id>")
+if len(sys.argv)!=5:
+    print("Usage: python start_observer.py <mode> <freq_sec> <bot_token> <bot_chat_id>")
     sys.exit(2)
-bot_token = sys.argv[3]
-bot_chatID = sys.argv[2]
+bot_token = sys.argv[4]
+bot_chatID = sys.argv[3]
 mode = sys.argv[1]
+freq = int(sys.argv[2])
 
-watcher = MagWatcher(freq = 60)
+watcher = MagWatcher(freq = freq)
 calculator = KIndexCalculator()
 watcher.service()
 prev_q=0
