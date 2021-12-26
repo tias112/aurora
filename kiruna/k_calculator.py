@@ -45,7 +45,7 @@ class KIndexCalculator:
                     df[column] = le.fit_transform(df[column])
             return df
         print("init KIndexCalculator")
-        training_df = pd.read_csv('test/files/train_data.csv')
+        training_df = pd.read_csv('maggraphs/files/train_data.csv')
         kiruna_Q = training_df["kiruna_Q"]
         training_df = training_df.drop('kiruna_Q', axis=1)
         training_df = encode_labels(training_df)
