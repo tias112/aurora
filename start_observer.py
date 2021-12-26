@@ -21,8 +21,6 @@ while True:
     try:
         q=calculator.get_q(mode, watcher.get_data())
         if prev_q!=q and q>2:
-            #bot_token = '5039169534:AAHfWFIAYkLfGIhx02epDj9RM3S_R5cwEsY'
-            #bot_chatID = '-773104628'
             test = telegram_bot_sendtext(bot_token, bot_chatID, "probability for aurora: "+ get_probability(q)+"(q="+str(q)+")")
         prev_q=q
         time.sleep(60)
