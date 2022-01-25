@@ -1,6 +1,10 @@
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.tree import DecisionTreeClassifier
+import logging
+import threading
+
+from client.db_client import DBClient
 
 def max_amplitude(subrange):
     return max(subrange) - min(subrange)
@@ -45,24 +49,29 @@ class KIndexCalculator:
                     df[column] = le.fit_transform(df[column])
             return df
         print("init KIndexCalculator")
+        self.__db = DBClient()
         training_df = pd.read_csv('maggraphs/files/train_data.csv')
         kiruna_Q = training_df["kiruna_Q"]
         training_df = training_df.drop('kiruna_Q', axis=1)
         training_df = encode_labels(training_df)
-        self.model = DecisionTreeClassifier().fit(training_df, kiruna_Q)
+        self.model = DecisionTreeClassifier().fit(training_df.values, kiruna_Q)
+        self.prev_q=0
+        self.prev_grad=0
+        self.last_notify=0
 
     def get_q(self, mode, xy_data):
         q = 0
         if mode=="ml":
             q = self.calculate_q_by_ml(xy_data)
-            print("q: " +str(q))
+            print("q: ",q)
         elif mode=="formula":
             q = self.calculate_q_by_ml(xy_data)
-            print("q: " +str(q))
+            print("q: ",q)
         elif mode=="both":
             q = self.calculate_q_by_ml(xy_data)
             q_form = self.calculate_q_by_formula(xy_data)
-            print("ml: " +str(q) + " formula:"+str(q_form))
+            print("ml:",q, " formula:",q_form)
+            return max(q, q_form)
         return q
 
     def calculate_q_by_formula(self, xy_data):
@@ -90,7 +99,6 @@ class KIndexCalculator:
             return self.calculate_q_3(test_q, 0, 0)
 
     def calculate_q_by_ml(self, xy_data):
-
         xAmp_30 = max_amplitude(xy_data['x_window_30'])
         xAmp_15 = max_amplitude(xy_data['x_window_15'])
         yAmp_15 = max_amplitude(xy_data['y_window_15'])
@@ -104,6 +112,40 @@ class KIndexCalculator:
 
         prediction = self.model.predict([amplitudes])
         return prediction[0]
+
+    def calculate_gradient(self, xy_data, xy_data_before):
+        xAmp_15 = max_amplitude(xy_data['x_window_15'])
+        xAmp_from_30_to_15 = max_amplitude(xy_data_before['x_window_15'])
+        K_index_prev = get_K_index(xAmp_from_30_to_15)
+        K_index = get_K_index(xAmp_15)
+        if K_index>K_index_prev:
+            return abs(K_index-K_index_prev)
+        return 0
+
+    def get_users_to_notify(self, mode, kiruna_watcher, bot_chatID, limit_q):
+        notify_users = []
+        q = self.get_q(mode, kiruna_watcher.get_data())
+        grad = self.calculate_gradient(kiruna_watcher.get_data(), kiruna_watcher.get_data_before())
+        if q > self.prev_q:
+            users = self.__db.execute_fetch_all(
+                        "SELECT telegram FROM users WHERE telegramnotification = true and min_q <= %s ",
+                        (q,))
+            for t in users:
+                notify_users.append([t[0], "probability for aurora: "+ get_probability(q)+"(q="+str(q)+")"])
+            #send to chat
+           # if q >=limit_q:
+            #     notify_users.append([bot_chatID, "probability for aurora: "+ get_probability(q)+"(q="+str(q)+")"])
+
+            #notify on high gradient
+            if grad!=self.prev_grad and grad>=2 and self.last_notify>15:
+                #notify_users.append([bot_chatID, "high q gradient: +"+str(grad)+" q="+str(q)])
+                for t in users:
+                    notify_users.append([t[0], "high q gradient: +"+str(grad)+" q="+str(q)])
+                self.last_notify = 0
+        self.last_notify+=1
+        self.prev_q=q
+        self.prev_grad=grad
+        return notify_users
 
     def calculate_q_1(test_q):
         xQ = get_K_index(test_q['x_range'])
@@ -128,7 +170,7 @@ class KIndexCalculator:
         q = max(xQ,yQ,zQ)
         return max(q, maxQ)
 
-    def calculate_q_4(test_q, test_q_prev):
+    def calculate_q_4(self, test_q, test_q_prev):
         if 'max_x' in test_q_prev.keys() and 'max_x' in test_q.keys():
             xQ = get_K_index(max(test_q['max_x'], test_q_prev['max_x']) - min(test_q['min_x'], test_q_prev['min_x']))
             yQ = get_K_index(max(test_q['max_y'], test_q_prev['max_y']) - min(test_q['min_y'], test_q_prev['min_y']))
@@ -139,8 +181,10 @@ class KIndexCalculator:
             q = max(xQ,yQ,zQ)
             return max(q, maxQ)
         elif 'max_x' in test_q_prev.keys():
-            return calculate_q_3(test_q_prev, 0, 0)
+            return self.calculate_q_3(test_q_prev, 0, 0)
         elif 'max_x' in test_q.keys():
-            return calculate_q_3(test_q, 0, 0)
+            return self.calculate_q_3(test_q, 0, 0)
         return 0
 
+    def stop(self):
+        self.__db.close_connection()
