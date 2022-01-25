@@ -1,7 +1,6 @@
 # aurora
 
-K index realtime calculation based on kiruna magnetogram data from www2.irf.se. If value of K index > 3 then message is
-sent to telegram chat.
+Telegram bot that monitors kiruna magnetogram data (www2.irf.se) and sends notifications of high values of Q.
 
 1. setup python
    - Ensure Python 3 is installed on your system
@@ -9,7 +8,7 @@ sent to telegram chat.
    - Start the virtual environment: `venv/Scripts/activate`
    - Check install tooling is up to date `python -m pip install -U pip wheel setuptools`
    - Install the requirements `pip install -r requirements.txt`
-2. start job:
+2. start telegram bot:
    python start_observer.py <q_limit> <freq_sec> <utc_shift_hours> <bot_token> <bot_chat_id>
 
    - q_limit: minimum q for reporting
