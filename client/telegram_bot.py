@@ -27,7 +27,7 @@ def start(update, context):
     print("subscribe notification", update.message.chat.id)
     credentials = db.execute_fetch_all("SELECT telegram FROM Users WHERE telegram ='%s'", (update.message.chat.id,))
     if len(credentials) == 0:
-        db.execute_query("INSERT INTO users VALUES(%s,3,true)", (update.message.chat.id,))
+        db.execute_query("INSERT INTO users(telegram,min_q,telegramnotification) VALUES(%s,3,true)", (update.message.chat.id,))
         update.message.reply_text('Hi! choose minimum q (1-9) for notify:')
         return ENTER_Q
     else:
@@ -76,8 +76,11 @@ def cancel(update, context):
 def test_user(chat_id):
     credentials = db.execute_fetch_all("SELECT telegram FROM users WHERE telegram ='%s'", (chat_id,))
     if len(credentials) == 0:
+        #msg = tb.send_message(m.chat.id, "Tell me your e-mail: ") #TODO enter minimum q
+        #tb.register_next_step_handler(msg, reg)
         db.execute_query("INSERT INTO users VALUES(%s,3,true)", (chat_id,))
         db.execute_query("UPDATE users SET min_q=%s where telegram='%s'", (5, chat_id,))
+        #update.message.reply_text('Hi!')
     else:
         print("User already registered.\nUse /registered")
     print("test user created")

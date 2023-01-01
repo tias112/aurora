@@ -12,17 +12,13 @@ class DBClient:
         DATABASE_URL = os.environ['DATABASE_URL']
         try:
             self.__connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-            #self.__connection = psycopg2.connect(
-            #    host="localhost",
-            #    database="interstorage",
-            #    user="user",
-            #    password="password")
+            #self.__connection = psycopg2.connect(host="localhost", database="interstorage", user="user", password="password")
             cur = self.__connection.cursor()
             cur.execute("select * from information_schema.tables where table_name=%s", ('users',))
             if not bool(cur.rowcount):
                 print("[WARNING]: No db found, creating a new one.")
                 cur.execute(
-                    "CREATE TABLE users (telegram VARCHAR(255) PRIMARY KEY, min_q INTEGER NOT NULL DEFAULT 3, is_new bool NULL DEFAULT true, telegramnotification bool NULL DEFAULT true);")
+                    "CREATE TABLE users (telegram VARCHAR(255) PRIMARY KEY, min_q INTEGER NOT NULL DEFAULT 3, is_new bool NULL DEFAULT true, telegramnotification bool NULL DEFAULT true, max_bz INTEGER NOT NULL DEFAULT -5, notify_bz bool NULL DEFAULT false);")
             cur.close()
             self.__connection.commit()
         except (Exception, psycopg2.DatabaseError) as error:

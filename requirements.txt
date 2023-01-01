@@ -1,11 +1,6 @@
 sklearn==0.0
 pandas
 requests
-jupyter==1.0.0
-jupyter-client==5.2.4
-jupyter-console==6.0.0
-jupyter-core==4.4.0
-notebook==5.7.6
 python-telegram-bot==12.7
 pillow
 psycopg2-binary

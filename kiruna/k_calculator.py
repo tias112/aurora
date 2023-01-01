@@ -31,10 +31,12 @@ def get_K_index(delta):
         return 9
     return 0
 
-def get_probability(q):
+def get_probability(q, bz):
     if 0<q<3:
         return 'low'
-    if 2<q<7:
+    if 2<q<7 and bz <-7:
+        return 'high'
+    if 2<q<7 and bz >-7:
         return 'medium'
     if 6<q<10:
         return 'high'
@@ -56,11 +58,14 @@ class KIndexCalculator:
         training_df = encode_labels(training_df)
         self.model = DecisionTreeClassifier().fit(training_df.values, kiruna_Q)
         self.prev_q=0
+        self.prev_bz=0
         self.prev_grad=0
         self.last_notify=0
 
     def get_q(self, mode, xy_data):
         q = 0
+        bz = self.calculate_min_bz(xy_data)
+        bz_current = self.calculate_current_bz(xy_data)
         if mode=="ml":
             q = self.calculate_q_by_ml(xy_data)
             print("q: ",q)
@@ -70,9 +75,17 @@ class KIndexCalculator:
         elif mode=="both":
             q = self.calculate_q_by_ml(xy_data)
             q_form = self.calculate_q_by_formula(xy_data)
-            print("ml:",q, " formula:",q_form)
-            return max(q, q_form)
-        return q
+            print("ml:",q, " formula:",q_form, "bz:", bz)
+            q = max(q, q_form)
+        return  {'q': q, 'bz': bz, 'bz_current': bz_current}
+
+    def calculate_min_bz(self, xy_data):
+        #print(xy_data['bz_window'])
+        return min(xy_data['bz_window'])
+
+    def calculate_current_bz(self, xy_data):
+        #print(xy_data['bz_window'])
+        return min(xy_data['bz_current'])
 
     def calculate_q_by_formula(self, xy_data):
         x_window_30 = xy_data['x_window_30']
@@ -124,27 +137,34 @@ class KIndexCalculator:
 
     def get_users_to_notify(self, mode, kiruna_watcher, bot_chatID, limit_q):
         notify_users = []
-        q = self.get_q(mode, kiruna_watcher.get_data())
+        data = self.get_q(mode, kiruna_watcher.get_data())
+        q = data['q']
+        bz = data['bz']
+        bz_current = data['bz_current']
         grad = self.calculate_gradient(kiruna_watcher.get_data(), kiruna_watcher.get_data_before())
+        if bz_current < self.prev_bz:
+            users = self.__db.execute_fetch_all(
+                        "SELECT telegram FROM users WHERE bz_notify=true and max_bz > %s ",
+                        (bz_current,))
+            for t in users:
+                notify_users.append([t[0], "high Bz:"+ str(bz_current)])
+
         if q > self.prev_q:
             users = self.__db.execute_fetch_all(
                         "SELECT telegram FROM users WHERE telegramnotification = true and min_q <= %s ",
                         (q,))
             for t in users:
-                notify_users.append([t[0], "probability for aurora: "+ get_probability(q)+"(q="+str(q)+")"])
-            #send to chat
-           # if q >=limit_q:
-            #     notify_users.append([bot_chatID, "probability for aurora: "+ get_probability(q)+"(q="+str(q)+")"])
+                notify_users.append([t[0], "probability for aurora: q="+str(q)+" ( " + get_probability(q, bz) + " Bz:"+ str(bz)+ " )"])
 
             #notify on high gradient
             if grad!=self.prev_grad and grad>=2 and self.last_notify>15:
-                #notify_users.append([bot_chatID, "high q gradient: +"+str(grad)+" q="+str(q)])
                 for t in users:
                     notify_users.append([t[0], "high q gradient: +"+str(grad)+" q="+str(q)])
                 self.last_notify = 0
         self.last_notify+=1
         self.prev_q=q
         self.prev_grad=grad
+        self.prev_bz=bz_current
         return notify_users
 
     def calculate_q_1(test_q):
