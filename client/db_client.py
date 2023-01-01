@@ -18,7 +18,7 @@ class DBClient:
             if not bool(cur.rowcount):
                 print("[WARNING]: No db found, creating a new one.")
                 cur.execute(
-                    "CREATE TABLE users (telegram VARCHAR(255) PRIMARY KEY, min_q INTEGER NOT NULL DEFAULT 3, is_new bool NULL DEFAULT true, telegramnotification bool NULL DEFAULT true, max_bz INTEGER NOT NULL DEFAULT -5, notify_bz bool NULL DEFAULT false);")
+                    "CREATE TABLE users (telegram VARCHAR(255) PRIMARY KEY, min_q INTEGER NOT NULL DEFAULT 3, is_new bool NULL DEFAULT true, telegramnotification bool NULL DEFAULT true, max_bz INTEGER NOT NULL DEFAULT -5, bz_notify bool NULL DEFAULT false);")
             cur.close()
             self.__connection.commit()
         except (Exception, psycopg2.DatabaseError) as error:
