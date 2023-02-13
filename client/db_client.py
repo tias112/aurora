@@ -15,6 +15,7 @@ class DBClient:
             #self.__connection = psycopg2.connect(host="localhost", database="interstorage", user="user", password="password")
             cur = self.__connection.cursor()
             cur.execute("select * from information_schema.tables where table_name=%s", ('users',))
+            print(cur.rowcount)
             if not bool(cur.rowcount):
                 print("[WARNING]: No db found, creating a new one.")
                 cur.execute(

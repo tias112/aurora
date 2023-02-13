@@ -10,9 +10,9 @@ psycopg2.extensions.register_adapter(np.int64, psycopg2._psycopg.AsIs)
 DATABASE_URL = os.environ['DATABASE_URL']
 try:
     #__connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-    __connection = psycopg2.connect(host="localhost", database="mydb", user="aurora1", password="aurora")
+    __connection = psycopg2.connect(host="localhost", database="mydb", user="aurora", password="aurora")
     cur = __connection.cursor()
-    cur.execute("select * from information_schema.tables where table_name=%s", ('users',))
+    cur.execute("select * from information_schema.tables where table_name='users'", ())
     if not bool(cur.rowcount):
         print("[WARNING]: No db found, creating a new one.")
         cur.execute(
