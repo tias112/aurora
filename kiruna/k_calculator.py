@@ -50,7 +50,7 @@ class KIndexCalculator:
                 if df[column].dtype == type(object):
                     df[column] = le.fit_transform(df[column])
             return df
-        print("init KIndexCalculator")
+        print("init KIndexCalculator", flush=True)
         self.__db = DBClient()
         training_df = pd.read_csv('maggraphs/files/train_data.csv')
         kiruna_Q = training_df["kiruna_Q"]
@@ -75,7 +75,7 @@ class KIndexCalculator:
         elif mode=="both":
             q = self.calculate_q_by_ml(xy_data)
             q_form = self.calculate_q_by_formula(xy_data)
-            print("ml:",q, " formula:",q_form, "bz:", bz)
+            print(f"ml:{q} formula:{q_form} bz: {bz}", flush=True)
             q = max(q, q_form)
         return  {'q': q, 'bz': bz, 'bz_current': bz_current}
 
