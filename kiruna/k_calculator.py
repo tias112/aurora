@@ -57,8 +57,8 @@ class KIndexCalculator:
         training_df = training_df.drop('kiruna_Q', axis=1)
         training_df = encode_labels(training_df)
         self.model = DecisionTreeClassifier().fit(training_df.values, kiruna_Q)
-        self.prev_q=0
-        self.prev_bz=0
+        self.prev_q = -1
+        self.prev_bz = 0
         self.prev_grad=0
         self.last_notify=0
 

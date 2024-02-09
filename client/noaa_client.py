@@ -17,8 +17,8 @@ class NOAAClient:
             if res:
                 return self.parse_results(res.json())
         except Exception as e:
-            print("exception")
-            print(e)
+            print("exception", flush=True)
+            print(e, flush=True)
             time.sleep(20)
 
         return []
@@ -41,6 +41,6 @@ class NOAAClient:
             processed = self.process_line(line)
             if processed['cnt'] > 0:
                 lines.append(processed)
-        print("new bz lines ", str(len(lines)))
+        print("new bz lines " + str(len(lines)), flush=True)
 
         return lines
