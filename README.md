@@ -18,4 +18,5 @@ sent to telegram chat.
     - bot_chat_id: chat_id
     - bz_shift: shift of current Bz activity. usually its 90 min
 
-
+example:
+```python start_observer.py 0 60 3 5039169534:AAHfWFIAYkLfGIhx02epDj9RM3S_R5cwEsY -773104628 1```

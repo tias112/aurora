@@ -147,7 +147,7 @@ class KIndexCalculator:
                         "SELECT telegram FROM users WHERE bz_notify=true and max_bz > %s ",
                         (bz_current,))
             for t in users:
-                notify_users.append([t[0], "high Bz:"+ str(bz_current)])
+                notify_users.append([t[0], "possible aurora in ~1.5h, Bz:" + str(bz_current)])
 
         if q > self.prev_q:
             users = self.__db.execute_fetch_all(

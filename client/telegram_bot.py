@@ -7,11 +7,15 @@ from .db_client import *
 
 db = DBClient()
 ENTER_Q = 1
+NOTIFY_BZ = 2
+ENTER_BZ = 3
+
 
 def telegram_bot_sendtext(bot_token, bot_chatID, bot_message):
-   send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + bot_chatID + '&parse_mode=Markdown&text=' + bot_message
-   response = requests.get(send_text)
-   return response.json()
+    send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + bot_chatID + '&parse_mode=Markdown&text=' + bot_message
+    response = requests.get(send_text)
+    return response.json()
+
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -39,11 +43,34 @@ def get_min_q(update, context):
     if pattern.match(update.message.text):
         min_q = int(update.message.text)
         db.execute_query("UPDATE users SET min_q=%s where telegram='%s'", (min_q, update.message.chat.id,))
-        update.message.reply_text(f"started observing for q>={update.message.text}\n")
+        update.message.reply_text(f"monitor bz? (y/n)\n")
+        return NOTIFY_BZ
     else:
         update.message.reply_text("incorrect input")
         return ConversationHandler.END
     # next state in conversation
+
+
+def get_bz_notify(update, context):
+    if 'y' == update.message.text:
+        db.execute_query("UPDATE users SET bz_notify=true where telegram='%s'", (update.message.chat.id,))
+        update.message.reply_text(f"treshold for bz (recommended: -10): \n")
+        return ENTER_BZ
+    else:
+        db.execute_query("UPDATE users SET bz_notify=false where telegram='%s'", (update.message.chat.id,))
+        return ConversationHandler.END
+
+
+def get_bz(update, context):
+    pattern = re.compile("^[-+]?[0-9]+$")
+    if pattern.match(update.message.text):
+        bz = float(update.message.text)
+        db.execute_query("UPDATE users SET max_bz=%s where telegram='%s'", (bz, update.message.chat.id,))
+        update.message.reply_text(f"started observing for bz < {bz}\n")
+    else:
+        update.message.reply_text("incorrect input. example: -10")
+        return ConversationHandler.END
+
 
 def stop(update, context):
     """Send a message when the command /start is issued."""
@@ -104,8 +131,17 @@ def bot_main(token):
        entry_points=[CommandHandler('start', start)],
        states={
            ENTER_Q: [
-               CommandHandler('cancel', cancel),  # has to be before MessageHandler to catch `/cancel` as command, not as `title`
+               CommandHandler('cancel', cancel),
+               # has to be before MessageHandler to catch `/cancel` as command, not as `title`
                MessageHandler(Filters.text, get_min_q)
+           ],
+           NOTIFY_BZ: [
+               CommandHandler('cancel', cancel),
+               MessageHandler(Filters.text, get_bz_notify)
+           ],
+           ENTER_BZ: [
+               CommandHandler('cancel', cancel),
+               MessageHandler(Filters.text, get_bz)
            ]
        },
        fallbacks=[CommandHandler('cancel', cancel)]
