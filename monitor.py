@@ -18,11 +18,11 @@ def background_monitor_q(limit_q, kiruna_watcher, bot_token, bot_chatID):
         try:
             telegram = calculator.get_users_to_notify(MODE, kiruna_watcher, bot_chatID, limit_q)
             for t in telegram:
-                print("send notification for " + t[0], flush=True)
+                print("send notification for " + str(t[0]), flush=True)
                 telegram_bot_sendtext(bot_token, t[0], t[1])
             time.sleep(60)
         except Exception as e:
-            print("!exception!", flush=True)
+            print("monitor !exception!", flush=True)
             print(e, flush=True)
             time.sleep(60)
     calculator.stop()
