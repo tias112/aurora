@@ -40,7 +40,7 @@ def get_probability(q, bz):
         return 'medium'
     if 6<q<10:
         return 'high'
-
+    return 'none'
 
 class KIndexCalculator:
     def __init__(self):
