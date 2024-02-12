@@ -35,17 +35,20 @@ if __name__ == "__main__":
                                 night_end=int(night_time[1]))
     idf_client = IRFClient()
     noaa_client = NOAAClient()
-    print(noaa_client.process(kiruna_watcher.current_ts_utc))
+    print(noaa_client.process(kiruna_watcher.current_ts_utc))  # TODO: calculate based on response
     # start watching kiruna
     t1 = threading.Thread(target=watcher_service, args=(kiruna_watcher, idf_client))
+    t1.daemon = True
     t2 = threading.Thread(target=bz_watcher_service, args=(kiruna_watcher, noaa_client))
+    t2.daemon = True
     t1.start()
     t2.start()
     time.sleep(5)
     # start notifier job
     t3 = threading.Thread(target=background_monitor_q, args=(limit_q, kiruna_watcher, bot_token, bot_chatID))
+    t3.daemon = True
     t3.start()
     bot_main(bot_token)
-    t1.do_run = False
+    t1.do_run = False  # not necessarily as all services are daemons
     t2.do_run = False
     t3.do_run = False

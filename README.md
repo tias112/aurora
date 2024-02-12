@@ -18,5 +18,8 @@ sent to telegram chat.
     - bot_chat_id: chat_id
     - bz_shift: shift of current Bz activity. usually its 90 min
 
-example:
-```python start_observer.py 0 60 3 5039169534:AAHfWFIAYkLfGIhx02epDj9RM3S_R5cwEsY -773104628 1```
+## IMPORTANT!!
+
+time_zone parameter should be correctly specified. if your app is running on server with shift from UTC. its important
+to add difference in time_zone. For example app is running in Stockholm timezone (UTC + 2):
+```python start_observer.py 0 60 2 5039169534:AAHfWFIAYkLfGIhx02epDj9RM3S_R5cwEsY -773104628 1```
