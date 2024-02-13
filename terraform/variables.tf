@@ -3,14 +3,14 @@ variable "env_time_shift_from_utc" {
 }
 
 variable "public_ip" {
-    default = "false"
+    default = "true"
 }
 
 variable "night_time_start" {
     default = "17"
 }
 variable "night_time_end" {
-    default = "4"
+    default = "5"
 }
 
 variable "bot_token" {
