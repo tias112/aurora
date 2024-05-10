@@ -21,18 +21,19 @@ class DBClient:
                 cur.execute(
                     "CREATE TABLE users (telegram VARCHAR(255) PRIMARY KEY, min_q INTEGER NOT NULL DEFAULT 3, is_new bool NULL DEFAULT true, telegramnotification bool NULL DEFAULT true, max_bz INTEGER NOT NULL DEFAULT -5, bz_notify bool NULL DEFAULT false);")
                 cur.execute(
-                    "INSERT INTO users (telegram,min_q,is_new,telegramnotification,bz_notify,max_bz) VALUES ('391911767',3,true,true,true,-15);");
+                    "INSERT INTO users (telegram,min_q,is_new,telegramnotification,bz_notify,max_bz) VALUES ('391911767',6,true,true,true,-15);");
                 cur.execute(
                     "INSERT INTO users (telegram,min_q,is_new,telegramnotification,bz_notify,max_bz) VALUES ('421673318',6,true,true,true,-15);");
                 cur.execute(
                     "INSERT INTO users (telegram,min_q,is_new,telegramnotification,bz_notify,max_bz) VALUES ('287725775',7,true,true,true,-15);")
+		# aurora1 chat
                 cur.execute(
-                    "INSERT INTO users (telegram,min_q,is_new,telegramnotification,bz_notify,max_bz) VALUES ('-677324504',3,true,true,true,-15);")
+                    "INSERT INTO users (telegram,min_q,is_new,telegramnotification,bz_notify,max_bz) VALUES ('-677324504',6,true,true,true,-15);")
                 cur.execute(
                     "INSERT INTO users (telegram,min_q,is_new,telegramnotification,bz_notify,max_bz) VALUES ('143193483',6,true,true,true,-15);")
-
+		#current
                 cur.execute(
-                    "INSERT INTO users (telegram,min_q,is_new,telegramnotification,bz_notify,max_bz) VALUES ('1781071627',0,true,true,true,-10);")
+                    "INSERT INTO users (telegram,min_q,is_new,telegramnotification,bz_notify,max_bz) VALUES ('1781071627',5,true,true,true,-10);")
             cur.close()
             self.__connection.commit()
         except (Exception, psycopg2.DatabaseError) as error:
