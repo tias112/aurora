@@ -1,8 +1,6 @@
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.tree import DecisionTreeClassifier
-import logging
-import threading
 
 from client.db_client import DBClient
 
