@@ -14,7 +14,7 @@ echo "DATABASE_URL=postgres://${username}:${password}@${host}:${port}/${db_name}
 echo "BOT_TOKEN=${bot_token}" >> .env
 echo "BOT_CHAT_ID=-773104628" >> .env
 echo "LIMIT_Q=0" >> .env
-echo "FREQ_SEQ=60" >> .env
+echo "FREQ_SEC=60" >> .env
 echo "UTC_SHIFT=${utc_shift}" >> .env
 echo "NIGHT_TIME=${night_time}" >> .env
 
