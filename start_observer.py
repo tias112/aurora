@@ -12,6 +12,7 @@ import time
 import warnings
 
 if __name__ == "__main__":
+
     warnings.filterwarnings(action='ignore', message='Python 3.6 is no longer supported')
     if len(sys.argv) != 7:
         print("Usage: python start_observer.py <limit_q> <freq_sec> <utc_shift> <bot_token> <bot_chat_id> <night_time>")

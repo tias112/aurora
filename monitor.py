@@ -3,13 +3,15 @@ from kiruna.k_calculator import KIndexCalculator
 from client.db_client import DBClient
 import threading
 import time
+from config import settings
 
+db_client = DBClient(settings.database_url)
 
 def background_monitor_q(limit_q, kiruna_watcher, bot_token, bot_chatID):
     MODE = 'both'
     print("start monitor", flush=True)
     print(f"limit_q {limit_q} utc_shift:{kiruna_watcher.utc_shift}", flush=True)
-    calculator = KIndexCalculator()
+    calculator = KIndexCalculator(db_client)
 
     # for user in get_all_users_to_notify():
     #    telegram_bot_sendtext(bot_token, user[0], "observing q has been started")
@@ -30,7 +32,7 @@ def background_monitor_q(limit_q, kiruna_watcher, bot_token, bot_chatID):
 
 
 def get_all_users_to_notify():
-    db = DBClient()
-    users = db.execute_fetch_all("SELECT telegram FROM users WHERE telegramnotification = true ", ())
-    db.close_connection()
+
+    users = db_client.execute_fetch_all("SELECT telegram FROM users WHERE telegramnotification = true ", ())
+    #db_client.close_connection()
     return users

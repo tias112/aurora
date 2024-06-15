@@ -1,17 +1,20 @@
 import os
 from os.path import expanduser
 
-import os
 import psycopg2
 import numpy as np
+import sys
+#sys.path.insert(0,'..')
+from config import settings
 from psycopg2.extensions import register_adapter, AsIs
 psycopg2.extensions.register_adapter(np.int64, psycopg2._psycopg.AsIs)
 
 class DBClient:
-    def __init__(self):
-        DATABASE_URL = os.environ['DATABASE_URL']
+    def __init__(self, database_url):
+        #DATABASE_URL = os.environ['DATABASE_URL']
+        print("initializing DBClient")
         try:
-            self.__connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+            self.__connection = psycopg2.connect(database_url, sslmode='require')
             #self.__connection = psycopg2.connect(host="localhost", database="interstorage", user="user", password="password")
             cur = self.__connection.cursor()
             cur.execute("select * from information_schema.tables where table_name=%s", ('users',))

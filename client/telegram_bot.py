@@ -4,8 +4,9 @@ from telegram.ext import ConversationHandler, Updater, CommandHandler, MessageHa
 import os
 import re
 from .db_client import *
+from config import settings
 
-db = DBClient()
+db = DBClient(settings.database_url)
 ENTER_Q = 1
 NOTIFY_BZ = 2
 ENTER_BZ = 3

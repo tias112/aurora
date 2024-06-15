@@ -4,3 +4,5 @@ requests
 python-telegram-bot==12.7
 pillow
 psycopg2-binary
+python-dotenv
+pydantic-settings
