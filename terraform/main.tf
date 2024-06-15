@@ -17,11 +17,11 @@ terraform {
 }
 // PROVIDERS
 
-provider "aws" {
-  region                  = "eu-north-1"
-  shared_credentials_files  = ["credentials"]
-  profile                 = "default"
-}
+//provider "aws" {
+//  region                  = "eu-north-1"
+//  shared_credentials_files  = ["credentials"]
+//  profile                 = "default"
+//}
 
 //KEYS
 
@@ -74,13 +74,6 @@ resource "aws_security_group" "security_group_aurora" {
   ingress {
     from_port   = local.postgres_port
     to_port     = local.postgres_port
-    protocol    = "tcp"
-    description = "PostgreSQL"
-    cidr_blocks = ["0.0.0.0/0"] // >
-  }
-  ingress {
-    from_port   = 22
-    to_port     = 22
     protocol    = "tcp"
     description = "PostgreSQL"
     cidr_blocks = ["0.0.0.0/0"] // >

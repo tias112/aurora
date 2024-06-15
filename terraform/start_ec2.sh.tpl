@@ -10,9 +10,16 @@ sudo git clone https://github.com/tias112/aurora.git
 cd aurora
 pip install -r requirements.txt
 
-echo "export DATABASE_URL=postgres://${username}:${password}@${host}:${port}/${db_name}" > run.sh
+echo "DATABASE_URL=postgres://${username}:${password}@${host}:${port}/${db_name}" > .env
+echo "BOT_TOKEN=${bot_token}" >> .env
+echo "BOT_CHAT_ID=-773104628" >> .env
+echo "LIMIT_Q=0" >> .env
+echo "FREQ_SEQ=60" >> .env
+echo "UTC_SHIFT=${utc_shift}" >> .env
+echo "NIGHT_TIME=${night_time}" >> .env
+
 echo "cd /home/ubuntu/aurora" >> run.sh
-echo "python start_observer.py 0 60 ${utc_shift} ${bot_token} -773104628 ${night_time}" >> run.sh
+echo "python start_observer.py" >> run.sh
 chmod a+x run.sh
 
 
