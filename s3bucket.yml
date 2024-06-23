@@ -1,7 +1,0 @@
----
-Resources:
-  MyBucket:
-    Type: 'AWS::S3::Bucket'
-    Properties: 
-      BucketName: Name-Of-Your-Bucket
-      AccessControl: PublicRead
