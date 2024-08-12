@@ -1,14 +1,14 @@
-import pathlib
 from typing import List, Optional
 
-from dotenv import find_dotenv, load_dotenv
+from dotenv import find_dotenv
 from pydantic_settings import BaseSettings
+from pydantic import SecretStr
 from pydantic.fields import Field
 
 
 class Settings(BaseSettings):
     database_url: str
-    bot_token: str
+    bot_token: SecretStr
     bot_chat_id: str
     limit_q: int
     freq_sec: int
@@ -20,5 +20,4 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
-load_dotenv()
 settings = Settings()
