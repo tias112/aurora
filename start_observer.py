@@ -34,10 +34,10 @@ if __name__ == "__main__":
     time.sleep(5)
     # start notifier job
     t3 = threading.Thread(target=background_monitor_q,
-                          args=(settings.limit_q, kiruna_watcher, settings.bot_token, settings.bot_chat_id))
+                          args=(settings.limit_q, kiruna_watcher, settings.bot_token.get_secret_value(), settings.bot_chat_id))
     t3.daemon = True
     t3.start()
-    bot_main(settings.bot_token)
+    bot_main(settings.bot_token.get_secret_value())
     t1.do_run = False  # not necessarily as all services are daemons
     t2.do_run = False
     t3.do_run = False

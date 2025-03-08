@@ -2,8 +2,6 @@ import pandas as pd
 from sklearn import preprocessing
 from sklearn.tree import DecisionTreeClassifier
 
-from client.db_client import DBClient
-
 def max_amplitude(subrange):
     return max(subrange) - min(subrange)
 def get_K_index(delta):
@@ -41,7 +39,7 @@ def get_probability(q, bz):
     return 'none'
 
 class KIndexCalculator:
-    def __init__(self):
+    def __init__(self, db):
         def encode_labels(df):
             le = preprocessing.LabelEncoder()
             for column in df.columns:
@@ -49,7 +47,7 @@ class KIndexCalculator:
                     df[column] = le.fit_transform(df[column])
             return df
         print("init KIndexCalculator", flush=True)
-        self.__db = DBClient()
+        self.__db = db
         training_df = pd.read_csv('maggraphs/files/train_data.csv')
         kiruna_Q = training_df["kiruna_Q"]
         training_df = training_df.drop('kiruna_Q', axis=1)

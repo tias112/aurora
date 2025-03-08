@@ -7,7 +7,7 @@
 5. ```terraform init ```
 6. ```terraform apply```
 
-
+## Notes
 about automated start/stop of observer:
 
 create s3 resource and upload terraform files.
@@ -28,3 +28,5 @@ create policy for s3 get:
     }
   ]
 }
+
+###start
