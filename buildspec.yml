@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.10
+  pre_build:
+    commands:
+      - echo "Creating the deployment package and layer"
+      - pip install -r requirements.txt --python-version 3.10 --platform manylinux2014_x86_64 --implementation cp --only-binary=:all: -t ./layers/python/    
+  build:
+    commands:
+      - echo "Packaging the lambda function and layer"
+      - cd src && zip -r ../function_payload.zip lambda_function.py 
+      - cd ../layers && zip -r ../layer_payload.zip python
+artifacts:
+  files:
+    - function_payload.zip
+    - layer_payload.zip
